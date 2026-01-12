@@ -807,18 +807,27 @@ if (terminalInput) {
         terminalInput.focus();
     });
     
+    // Detect if device has touch capability (works for mobile in desktop mode too)
+    const isTouchDevice = () => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    };
+    
     // Mobile keyboard handling - scroll to keep terminal visible
     terminalInput.addEventListener('focus', () => {
-        // Check if on mobile (screen width <= 768px)
-        if (window.innerWidth <= 768) {
+        // Check if touch device (works regardless of viewport width)
+        if (isTouchDevice()) {
             // Small delay to let keyboard appear
             setTimeout(() => {
                 const terminalContainer = document.querySelector('.typewriter-container');
                 if (terminalContainer) {
                     terminalContainer.scrollIntoView({ 
                         behavior: 'smooth', 
-                        block: 'center' 
+                        block: 'start' 
                     });
+                    // Additional scroll to account for keyboard
+                    setTimeout(() => {
+                        window.scrollBy({ top: -100, behavior: 'smooth' });
+                    }, 100);
                 }
             }, 300);
         }
@@ -827,12 +836,12 @@ if (terminalInput) {
     // Handle visual viewport resize (keyboard appearing/disappearing)
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
-            if (document.activeElement === terminalInput && window.innerWidth <= 768) {
+            if (document.activeElement === terminalInput && isTouchDevice()) {
                 const terminalContainer = document.querySelector('.typewriter-container');
                 if (terminalContainer) {
                     terminalContainer.scrollIntoView({ 
                         behavior: 'smooth', 
-                        block: 'center' 
+                        block: 'start' 
                     });
                 }
             }

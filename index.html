@@ -40,9 +40,10 @@
             font-family: 'JetBrains Mono', monospace;
             background: var(--deep-void);
             color: var(--pure-white);
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             line-height: 1.6;
-            height: 100vh;
+            min-height: 100vh;
         }
         
         /* Navigation */
@@ -229,20 +230,18 @@
         /* Main Content */
         .main-content {
             margin-left: 64px;
-            height: 100vh;
+            min-height: 100vh;
             position: relative;
-            overflow: hidden;
         }
         
         /* Hero Section */
         .hero-section {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             padding: 48px;
-            overflow: hidden;
         }
         
         .hero-content {
