@@ -288,20 +288,25 @@
             margin-right: auto;
         }
         
-        .hero-bullets {
-            list-style: none;
-            padding: 0;
-            margin: 0 auto 64px;
+        .hero-bullets-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 12px;
+            margin: 0 auto 64px;
         }
         
-        .hero-bullets li {
+        .hero-bullets-row {
             display: flex;
-            align-items: center;
+            justify-content: center;
             gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .hero-bullet {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
             font-size: 1rem;
             color: var(--light-grey);
             padding: 8px 20px;
@@ -311,14 +316,14 @@
             transition: all 0.3s ease;
         }
         
-        .hero-bullets li:hover {
+        .hero-bullet:hover {
             background: linear-gradient(135deg, rgba(0, 168, 150, 0.2), rgba(74, 111, 165, 0.2));
             border-color: var(--neon-teal);
-            transform: translateX(5px);
+            transform: translateY(-3px);
             box-shadow: 0 0 15px rgba(0, 168, 150, 0.2);
         }
         
-        .hero-bullets li::before {
+        .hero-bullet::before {
             content: '◆';
             color: var(--neon-teal);
             font-size: 0.7rem;
@@ -787,11 +792,15 @@
                 <p class="hero-description">
                     I keep Enterprise Networks and Active Directory running, Admins sane, and Critical Issues under-control (Most Days 😄)
                 </p>
-                <ul class="hero-bullets">
-                    <li>Part Network/AD Admin 🛜</li>
-                    <li>Part Escalation Firefighter 🚒</li>
-                    <li>Full-time Learner 📝</li>
-                </ul>
+                <div class="hero-bullets-wrapper">
+                    <div class="hero-bullets-row">
+                        <span class="hero-bullet">Part Network/AD Admin 🛜</span>
+                        <span class="hero-bullet">Part Escalation Firefighter 🚒</span>
+                    </div>
+                    <div class="hero-bullets-row">
+                        <span class="hero-bullet">Full-time Learner 📝</span>
+                    </div>
+                </div>
                 
                 <!-- Terminal Interface -->
                 <div class="typewriter-container">
