@@ -813,23 +813,42 @@ if (terminalInput) {
     };
     
     // Mobile keyboard handling - scroll to keep terminal visible
+    const scrollTerminalIntoView = () => {
+        const terminalContainer = document.querySelector('.typewriter-container');
+        if (terminalContainer) {
+            // Use scrollIntoView for more reliable mobile behavior
+            terminalContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+    };
+    
     terminalInput.addEventListener('focus', () => {
         if (isTouchDevice()) {
-            setTimeout(() => {
-                const terminalContainer = document.querySelector('.typewriter-container');
-                if (terminalContainer) {
-                    // Get terminal position and scroll to show it with some space above
-                    const rect = terminalContainer.getBoundingClientRect();
-                    const absoluteTop = rect.top + window.pageYOffset;
-                    // Scroll so terminal is about 50px from top of screen
-                    const targetScroll = absoluteTop - 50;
-                    
-                    window.scrollTo({
-                        top: Math.max(0, targetScroll),
-                        behavior: 'smooth'
-                    });
-                }
-            }, 350);
+            // Initial scroll attempt
+            setTimeout(scrollTerminalIntoView, 100);
+            
+            // Handle visual viewport resize (keyboard appearing)
+            if (window.visualViewport) {
+                const handleViewportResize = () => {
+                    scrollTerminalIntoView();
+                };
+                
+                window.visualViewport.addEventListener('resize', handleViewportResize);
+                window.visualViewport.addEventListener('scroll', handleViewportResize);
+                
+                // Clean up listeners on blur
+                const cleanup = () => {
+                    window.visualViewport.removeEventListener('resize', handleViewportResize);
+                    window.visualViewport.removeEventListener('scroll', handleViewportResize);
+                    terminalInput.removeEventListener('blur', cleanup);
+                };
+                terminalInput.addEventListener('blur', cleanup);
+            } else {
+                // Fallback for browsers without visualViewport
+                setTimeout(scrollTerminalIntoView, 350);
+            }
         }
     });
 }
