@@ -9,6 +9,13 @@ class PersonalWebsite {
         this.navDock = document.getElementById('navDock');
         this.backgroundCanvas = document.getElementById('background-canvas');
         
+        // Expanded terminal elements
+        this.terminalOverlay = document.getElementById('terminalOverlay');
+        this.expandedTerminal = document.getElementById('expandedTerminal');
+        this.expandedTerminalOutput = document.getElementById('expandedTerminalOutput');
+        this.expandedTerminalInput = document.getElementById('expandedTerminalInput');
+        this.isExpandedTerminalOpen = false;
+        
         this.isCommandPaletteOpen = false;
         this.currentTerminalLine = 0;
         this.terminalCommands = {
@@ -29,6 +36,7 @@ class PersonalWebsite {
             'skill': this.navigateToSkills.bind(this),
             'skl': this.navigateToSkills.bind(this),
             'clear': this.clearTerminal.bind(this),
+            'cls': this.clearTerminal.bind(this),
             'whoami': this.showWhoami.bind(this),
             'about': this.showAbout.bind(this),
             'date': this.showDate.bind(this),
@@ -47,6 +55,277 @@ class PersonalWebsite {
         this.createBackgroundAnimation();
         this.setupCommandPalette();
         this.setupMobileNavigation();
+        this.setupExpandedTerminal();
+    }
+    
+    setupExpandedTerminal() {
+        const typewriterContainer = document.querySelector('.typewriter-container');
+        
+        if (typewriterContainer && this.terminalOverlay) {
+            // Click on terminal to expand
+            typewriterContainer.addEventListener('click', (e) => {
+                // Don't expand if clicking on input field
+                if (e.target.id === 'terminalInput') return;
+                this.openExpandedTerminal();
+            });
+            
+            // Close buttons
+            const closeBtn = document.getElementById('expandedTerminalCloseBtn');
+            const closeDot = document.getElementById('expandedTerminalClose');
+            
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => this.closeExpandedTerminal());
+            }
+            
+            if (closeDot) {
+                closeDot.addEventListener('click', () => this.closeExpandedTerminal());
+            }
+            
+            // Close on overlay click (outside terminal)
+            this.terminalOverlay.addEventListener('click', (e) => {
+                if (e.target === this.terminalOverlay) {
+                    this.closeExpandedTerminal();
+                }
+            });
+            
+            // Handle input in expanded terminal
+            if (this.expandedTerminalInput) {
+                this.expandedTerminalInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        const command = this.expandedTerminalInput.value.trim();
+                        if (command) {
+                            this.executeExpandedTerminalCommand(command);
+                            this.expandedTerminalInput.value = '';
+                        }
+                    }
+                });
+            }
+            
+            // Close on Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isExpandedTerminalOpen) {
+                    this.closeExpandedTerminal();
+                }
+            });
+        }
+    }
+    
+    openExpandedTerminal() {
+        if (!this.terminalOverlay) return;
+        
+        this.isExpandedTerminalOpen = true;
+        this.terminalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Sync content from main terminal to expanded terminal
+        this.syncTerminalContent();
+        
+        // Focus input after animation
+        setTimeout(() => {
+            if (this.expandedTerminalInput) {
+                this.expandedTerminalInput.focus();
+            }
+        }, 400);
+        
+        // Animate with anime.js if available
+        if (typeof anime !== 'undefined' && this.expandedTerminal) {
+            anime({
+                targets: this.expandedTerminal,
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 400,
+                easing: 'easeOutBack'
+            });
+        }
+    }
+    
+    closeExpandedTerminal() {
+        if (!this.terminalOverlay) return;
+        
+        // Animate out
+        if (typeof anime !== 'undefined' && this.expandedTerminal) {
+            anime({
+                targets: this.expandedTerminal,
+                scale: [1, 0.9],
+                opacity: [1, 0],
+                translateY: [0, 20],
+                duration: 250,
+                easing: 'easeInQuad',
+                complete: () => {
+                    this.terminalOverlay.classList.remove('active');
+                    this.isExpandedTerminalOpen = false;
+                    document.body.style.overflow = '';
+                }
+            });
+        } else {
+            this.terminalOverlay.classList.remove('active');
+            this.isExpandedTerminalOpen = false;
+            document.body.style.overflow = '';
+        }
+        
+        // Sync content back to main terminal
+        this.syncTerminalContentBack();
+    }
+    
+    syncTerminalContent() {
+        if (this.terminalOutput && this.expandedTerminalOutput) {
+            this.expandedTerminalOutput.innerHTML = this.terminalOutput.innerHTML;
+            this.expandedTerminalOutput.scrollTop = this.expandedTerminalOutput.scrollHeight;
+        }
+    }
+    
+    syncTerminalContentBack() {
+        if (this.terminalOutput && this.expandedTerminalOutput) {
+            this.terminalOutput.innerHTML = this.expandedTerminalOutput.innerHTML;
+            this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+        }
+    }
+    
+    executeExpandedTerminalCommand(command) {
+        if (!command) return;
+        
+        const cmd = command.toLowerCase().split(' ')[0];
+        const args = command.split(' ').slice(1);
+        
+        // Show command in expanded terminal
+        this.addExpandedTerminalOutput(`> ${command}`, 'command-line');
+        
+        // Handle clear command specially
+        if (cmd === 'clear' || cmd === 'cls') {
+            this.clearExpandedTerminal();
+            return;
+        }
+        
+        // Handle commands that need special handling for expanded terminal
+        if (cmd === 'whoami') {
+            this.showWhoamiExpanded();
+            return;
+        }
+        
+        if (cmd === 'help') {
+            this.showHelpExpanded();
+            return;
+        }
+        
+        if (cmd === 'about') {
+            this.showAboutExpanded();
+            return;
+        }
+        
+        if (this.terminalCommands[cmd]) {
+            // Temporarily redirect output to expanded terminal
+            const originalOutput = this.terminalOutput;
+            this.terminalOutput = this.expandedTerminalOutput;
+            
+            this.terminalCommands[cmd](args);
+            
+            // Restore original output reference
+            this.terminalOutput = originalOutput;
+        } else {
+            this.addExpandedTerminalOutput(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error-line');
+        }
+        
+        // Scroll to bottom
+        if (this.expandedTerminalOutput) {
+            this.expandedTerminalOutput.scrollTop = this.expandedTerminalOutput.scrollHeight;
+        }
+    }
+    
+    showWhoamiExpanded() {
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                this.addExpandedTerminalMultiLine([
+                    'Visitor Information:',
+                    `  IP Address: ${data.ip}`,
+                    '  Status: Connected ✅'
+                ]);
+            })
+            .catch(() => {
+                this.addExpandedTerminalMultiLine([
+                    'Visitor Information:',
+                    '  IP Address: Unable to fetch',
+                    '  Status: Connected ✅'
+                ]);
+            });
+    }
+    
+    showHelpExpanded() {
+        const helpLines = [
+            'Available commands:',
+            '',
+            '  Navigation:',
+            '    experience, exp  - Go to experience page',
+            '    skills, skl      - Go to skills page',
+            '    projects, pro    - Go to projects page',
+            '    education, edu   - Go to education page',
+            '    contact, con     - Go to contact page',
+            '',
+            '  Info:',
+            '    about            - About me',
+            '    whoami           - Show current user info',
+            '    linkedin         - Open LinkedIn profile',
+            '    location         - Show current location',
+            '',
+            '  Utility:',
+            '    help             - Show this help message',
+            '    clear            - Clear terminal',
+            '    date             - Show current date',
+            '    uptime           - Show system uptime'
+        ];
+        this.addExpandedTerminalMultiLine(helpLines);
+    }
+    
+    showAboutExpanded() {
+        const aboutLines = [
+            'About Himanshu Chauhan:',
+            '',
+            '  Support Escalation Engineer at Microsoft',
+            '  Specializing in Windows Networking, DNS, TCP/IP',
+            '  5+ years in enterprise networking support',
+            '',
+            '  Currently pursuing MSc in Data Science',
+            '  Passionate about problem-solving and automation',
+            '',
+            '  Type "experience" to see my work history',
+            '  Type "skills" to see my technical expertise'
+        ];
+        this.addExpandedTerminalMultiLine(aboutLines);
+    }
+    
+    addExpandedTerminalMultiLine(lines) {
+        if (!this.expandedTerminalOutput) return;
+        
+        lines.forEach(text => {
+            const line = document.createElement('div');
+            line.className = 'terminal-line response-line';
+            // Use pre-wrap to preserve spaces for formatting
+            line.style.whiteSpace = 'pre';
+            line.textContent = text || '\u00A0'; // Use non-breaking space for empty lines
+            this.expandedTerminalOutput.appendChild(line);
+        });
+        
+        // Scroll to bottom
+        this.expandedTerminalOutput.scrollTop = this.expandedTerminalOutput.scrollHeight;
+    }
+    
+    addExpandedTerminalOutput(text, className = '') {
+        if (!this.expandedTerminalOutput) return;
+        
+        const line = document.createElement('div');
+        line.className = `terminal-line ${className}`;
+        line.textContent = text;
+        this.expandedTerminalOutput.appendChild(line);
+        
+        // Scroll to bottom
+        this.expandedTerminalOutput.scrollTop = this.expandedTerminalOutput.scrollHeight;
+    }
+    
+    clearExpandedTerminal() {
+        if (this.expandedTerminalOutput) {
+            this.expandedTerminalOutput.innerHTML = '<div class="terminal-line">Terminal cleared. Type \'help\' for commands.</div>';
+        }
     }
     
     setupMobileNavigation() {
