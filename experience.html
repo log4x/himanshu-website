@@ -875,10 +875,6 @@
             document.getElementById('morseOverlay').classList.remove('active');
         }
         
-        document.getElementById('morseOverlay').addEventListener('click', closeMorsePopup);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeMorsePopup();
-        });
     </script>
     
     <!-- Morse Code Popup -->
@@ -895,6 +891,14 @@
             <div class="output">"MADE SENSE OF CHAOS AND TURNED IT INTO PROGRESS"</div>
         </div>
     </div>
+    
+    <script>
+        // Morse popup event listeners (must be after popup HTML)
+        document.getElementById('morseOverlay').addEventListener('click', closeMorsePopup);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeMorsePopup();
+        });
+    </script>
     
     <script>
         // Mobile Navigation
