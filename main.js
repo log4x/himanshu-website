@@ -1,0 +1,817 @@
+// Main JavaScript for Himanshu Chauhan Personal Website
+// Handles navigation, interactions, animations, and terminal functionality
+
+class PersonalWebsite {
+    constructor() {
+        this.commandPalette = document.getElementById('commandPalette');
+        this.commandInput = document.getElementById('commandInput');
+        this.terminalOutput = document.getElementById('terminalOutput');
+        this.navDock = document.getElementById('navDock');
+        this.backgroundCanvas = document.getElementById('background-canvas');
+        
+        this.isCommandPaletteOpen = false;
+        this.currentTerminalLine = 0;
+        this.terminalCommands = {
+            'help': this.showHelp.bind(this),
+            'contact': this.navigateToContact.bind(this),
+            'con': this.navigateToContact.bind(this),
+            'linkedin': this.openLinkedIn.bind(this),
+            'resume': this.downloadResume.bind(this),
+            'location': this.showLocation.bind(this),
+            'experience': this.navigateToExperience.bind(this),
+            'exp': this.navigateToExperience.bind(this),
+            'projects': this.navigateToProjects.bind(this),
+            'project': this.navigateToProjects.bind(this),
+            'pro': this.navigateToProjects.bind(this),
+            'education': this.navigateToEducation.bind(this),
+            'edu': this.navigateToEducation.bind(this),
+            'skills': this.navigateToSkills.bind(this),
+            'skill': this.navigateToSkills.bind(this),
+            'skl': this.navigateToSkills.bind(this),
+            'clear': this.clearTerminal.bind(this),
+            'whoami': this.showWhoami.bind(this),
+            'about': this.showAbout.bind(this),
+            'date': this.showDate.bind(this),
+            'uptime': this.showUptime.bind(this)
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.setupEventListeners();
+        this.initializeTerminal();
+        this.setupScrollAnimations();
+        this.createBackgroundAnimation();
+        this.setupCommandPalette();
+    }
+    
+    setupEventListeners() {
+        // Command palette toggle (Ctrl+K or Cmd+K)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                this.toggleCommandPalette();
+            }
+            
+            if (e.key === 'Escape' && this.isCommandPaletteOpen) {
+                this.closeCommandPalette();
+            }
+        });
+        
+        // Command palette input
+        if (this.commandInput) {
+            this.commandInput.addEventListener('input', this.handleCommandInput.bind(this));
+            this.commandInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    this.executeCommand(this.commandInput.value.trim());
+                }
+            });
+        }
+        
+        // Command suggestions
+        document.querySelectorAll('.command-suggestion').forEach(suggestion => {
+            suggestion.addEventListener('click', () => {
+                const command = suggestion.dataset.command;
+                this.executeCommand(command);
+                this.closeCommandPalette();
+            });
+        });
+        
+        // Navigation dock hide/show on scroll
+        this.setupScrollBehavior();
+        
+        // Terminal interaction on index page
+        if (this.terminalOutput) {
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && this.terminalOutput.contains(document.activeElement)) {
+                    this.simulateTerminalCommand();
+                }
+            });
+        }
+    }
+    
+    setupCommandPalette() {
+        if (this.commandPalette) {
+            // Close when clicking overlay
+            const overlay = document.getElementById('commandOverlay');
+            if (overlay) {
+                overlay.addEventListener('click', () => this.closeCommandPalette());
+            }
+            
+            // Close button
+            const closeBtn = document.getElementById('commandPaletteClose');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => this.closeCommandPalette());
+            }
+        }
+    }
+    
+    toggleCommandPalette() {
+        if (this.isCommandPaletteOpen) {
+            this.closeCommandPalette();
+        } else {
+            this.openCommandPalette();
+        }
+    }
+    
+    openCommandPalette() {
+        if (this.commandPalette) {
+            this.commandPalette.classList.add('active');
+            const overlay = document.getElementById('commandOverlay');
+            if (overlay) overlay.classList.add('active');
+            this.isCommandPaletteOpen = true;
+            
+            // Focus input after animation
+            setTimeout(() => {
+                if (this.commandInput) {
+                    this.commandInput.focus();
+                    this.commandInput.value = '';
+                }
+            }, 100);
+        }
+    }
+    
+    closeCommandPalette() {
+        if (this.commandPalette) {
+            this.commandPalette.classList.remove('active');
+            const overlay = document.getElementById('commandOverlay');
+            if (overlay) overlay.classList.remove('active');
+            this.isCommandPaletteOpen = false;
+            
+            if (this.commandInput) {
+                this.commandInput.value = '';
+            }
+        }
+    }
+    
+    handleCommandInput(e) {
+        const value = e.target.value.toLowerCase();
+        const suggestions = document.querySelectorAll('.command-suggestion');
+        
+        suggestions.forEach(suggestion => {
+            const command = suggestion.dataset.command.toLowerCase();
+            if (command.includes(value) || value === '') {
+                suggestion.style.display = 'block';
+            } else {
+                suggestion.style.display = 'none';
+            }
+        });
+    }
+    
+    executeCommand(command) {
+        if (!command) return;
+        
+        const cmd = command.toLowerCase().split(' ')[0];
+        const args = command.split(' ').slice(1);
+        
+        if (this.terminalCommands[cmd]) {
+            this.terminalCommands[cmd](args);
+        } else {
+            this.showError(`Command not found: ${cmd}. Type 'help' for available commands.`);
+        }
+        
+        this.closeCommandPalette();
+    }
+    
+    // Terminal commands
+    showHelp() {
+        const helpText = [
+            'Available commands:',
+            '',
+            '  Navigation:',
+            '    experience, exp  - Go to experience page',
+            '    skills, skl      - Go to skills page',
+            '    projects, pro    - Go to projects page',
+            '    education, edu   - Go to education page',
+            '    contact, con     - Go to contact page',
+            '',
+            '  Info:',
+            '    about            - About me',
+            '    whoami           - Show current user info',
+            '    linkedin         - Open LinkedIn profile',
+            '    location         - Show current location',
+            '',
+            '  Utility:',
+            '    help             - Show this help message',
+            '    clear            - Clear terminal',
+            '    date             - Show current date',
+            '    uptime           - Show system uptime'
+        ];
+        this.addTerminalOutput(helpText.join('\n'));
+    }
+    
+    navigateToContact() {
+        window.location.href = 'contact.html';
+    }
+    
+    openLinkedIn() {
+        window.open('https://www.linkedin.com/in/himanshu4186/', '_blank');
+        this.addTerminalOutput('Opening LinkedIn profile...');
+    }
+    
+    downloadResume() {
+        // In a real implementation, this would trigger a download
+        this.addTerminalOutput('Resume download feature coming soon!\nContact me directly for resume.');
+    }
+    
+    showLocation() {
+        this.addTerminalOutput('📍 Location: Bangalore, India\nTimezone: IST (UTC+5:30)');
+    }
+    
+    navigateToExperience() {
+        window.location.href = 'experience.html';
+    }
+    
+    navigateToProjects() {
+        window.location.href = 'projects.html';
+    }
+    
+    navigateToEducation() {
+        window.location.href = 'education.html';
+    }
+    
+    navigateToSkills() {
+        window.location.href = 'skills.html';
+    }
+    
+    showAbout() {
+        const aboutInfo = [
+            'About Himanshu Chauhan:',
+            '',
+            '  Support Escalation Engineer at Microsoft',
+            '  Specializing in Windows Networking, DNS, TCP/IP',
+            '  5+ years in enterprise networking support',
+            '',
+            '  Currently pursuing MSc in Data Science',
+            '  Passionate about problem-solving and automation',
+            '',
+            '  Type "experience" to see my work history',
+            '  Type "skills" to see my technical expertise'
+        ];
+        this.addTerminalOutput(aboutInfo.join('\n'));
+    }
+    
+    clearTerminal() {
+        if (this.terminalOutput) {
+            this.terminalOutput.innerHTML = '<div class="terminal-line">Terminal cleared. Type \'help\' for commands.</div>';
+            this.currentTerminalLine = 0;
+        }
+    }
+    
+    showWhoami() {
+        const userInfo = [
+            'User: Himanshu Chauhan',
+            'Role: Support Escalation Engineer',
+            'Company: Microsoft',
+            'Specialization: Windows Networking, DNS, TCP/IP',
+            'Experience: 5+ years in enterprise networking',
+            'Certifications: AI-900, AI-102, AZ-900, CCNA (in progress)'
+        ];
+        this.addTerminalOutput(userInfo.join('\n'));
+    }
+    
+    showDate() {
+        const now = new Date();
+        const dateString = now.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour12: false
+        });
+        this.addTerminalOutput(`${dateString}\n${timeString}`);
+    }
+    
+    showUptime() {
+        // Simulate system uptime
+        const uptime = Math.floor(Math.random() * 365) + 1;
+        const days = Math.floor(uptime);
+        const hours = Math.floor((uptime - days) * 24);
+        const minutes = Math.floor(((uptime - days) * 24 - hours) * 60);
+        
+        this.addTerminalOutput(`Uptime: ${days} days, ${hours} hours, ${minutes} minutes\nSystem Status: Operational ✅`);
+    }
+    
+    showError(message) {
+        this.addTerminalOutput(`Error: ${message}`, 'error');
+    }
+    
+    addTerminalOutput(text, type = 'normal') {
+        if (!this.terminalOutput) return;
+        
+        const line = document.createElement('div');
+        line.className = `terminal-line ${type}`;
+        line.textContent = text;
+        
+        // Remove cursor from last line
+        const cursor = this.terminalOutput.querySelector('.cursor');
+        if (cursor && cursor.parentNode) {
+            cursor.parentNode.removeChild(cursor);
+        }
+        
+        this.terminalOutput.appendChild(line);
+        
+        // Add cursor to new line
+        const cursorElement = document.createElement('span');
+        cursorElement.className = 'cursor';
+        const cursorLine = document.createElement('div');
+        cursorLine.className = 'terminal-line';
+        cursorLine.textContent = '> ';
+        cursorLine.appendChild(cursorElement);
+        this.terminalOutput.appendChild(cursorLine);
+        
+        // Scroll to bottom
+        this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+        
+        // Animate new line
+        anime({
+            targets: line,
+            opacity: [0, 1],
+            translateY: [10, 0],
+            duration: 300,
+            easing: 'easeOutQuad'
+        });
+    }
+    
+    initializeTerminal() {
+        if (!this.terminalOutput) return;
+        
+        // Initial terminal content
+        const initialContent = [
+            'Welcome to my digital workspace.',
+            'Type \'help\' to see available commands.'
+        ];
+        
+        this.terminalOutput.innerHTML = '';
+        initialContent.forEach((line, index) => {
+            const lineElement = document.createElement('div');
+            lineElement.className = 'terminal-line';
+            lineElement.textContent = line;
+            
+            if (index === initialContent.length - 1) {
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                lineElement.appendChild(cursor);
+            }
+            
+            this.terminalOutput.appendChild(lineElement);
+        });
+        
+        this.currentTerminalLine = initialContent.length - 1;
+    }
+    
+    simulateTerminalCommand() {
+        const commands = ['help', 'contact', 'whoami', 'date', 'uptime'];
+        const randomCommand = commands[Math.floor(Math.random() * commands.length)];
+        
+        setTimeout(() => {
+            this.executeCommand(randomCommand);
+        }, 500);
+    }
+    
+    setupScrollAnimations() {
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all fade-in elements
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Stagger animations for cards
+        const cardGroups = document.querySelectorAll('.expertise-grid, .philosophy-points, .tech-list');
+        cardGroups.forEach(group => {
+            const cards = group.querySelectorAll('.expertise-card, .philosophy-card, .tech-item');
+            cards.forEach((card, index) => {
+                card.style.transitionDelay = `${index * 100}ms`;
+            });
+        });
+    }
+    
+    setupScrollBehavior() {
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+        
+        const updateScrollDirection = () => {
+            if (window.scrollY > lastScrollY + 10) {
+                // Scrolling down
+                if (this.navDock) {
+                    this.navDock.classList.add('hidden');
+                }
+            } else if (window.scrollY < lastScrollY - 10) {
+                // Scrolling up
+                if (this.navDock) {
+                    this.navDock.classList.remove('hidden');
+                }
+            }
+            lastScrollY = window.scrollY;
+            ticking = false;
+        };
+        
+        const requestScrollUpdate = () => {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollDirection);
+                ticking = true;
+            }
+        };
+        
+        window.addEventListener('scroll', requestScrollUpdate);
+    }
+    
+    createBackgroundAnimation() {
+        if (!this.backgroundCanvas) return;
+        
+        // Create p5.js sketch for background particles
+        const sketch = (p) => {
+            let particles = [];
+            let connections = [];
+            
+            p.setup = () => {
+                const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
+                canvas.parent('background-canvas');
+                
+                // Create particles
+                const particleCount = Math.floor(p.windowWidth * p.windowHeight / 40000);
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: p.random(p.width),
+                        y: p.random(p.height),
+                        vx: p.random(-0.5, 0.5),
+                        vy: p.random(-0.5, 0.5),
+                        size: p.random(2, 4)
+                    });
+                }
+            };
+            
+            p.draw = () => {
+                p.clear();
+                
+                // Update and draw particles
+                particles.forEach(particle => {
+                    // Update position
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    // Wrap around edges
+                    if (particle.x < 0) particle.x = p.width;
+                    if (particle.x > p.width) particle.x = 0;
+                    if (particle.y < 0) particle.y = p.height;
+                    if (particle.y > p.height) particle.y = 0;
+                    
+                    // Draw particle
+                    p.fill(0, 168, 150, 100);
+                    p.noStroke();
+                    p.ellipse(particle.x, particle.y, particle.size);
+                });
+                
+                // Draw connections
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dist = p.dist(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+                        if (dist < 100) {
+                            const alpha = p.map(dist, 0, 100, 50, 0);
+                            p.stroke(0, 168, 150, alpha);
+                            p.strokeWeight(1);
+                            p.line(particles[i].x, particles[i].y, particles[j].x, particles[j].y);
+                        }
+                    }
+                }
+            };
+            
+            p.windowResized = () => {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+        };
+        
+        new p5(sketch);
+    }
+}
+
+// Terminal functionality
+const terminalInput = document.getElementById('terminalInput');
+const terminalOutput = document.getElementById('terminalOutput');
+
+const commands = {
+    help: () => [
+        'Available commands:',
+        '',
+        '  Navigation:',
+        '    experience, exp  - Go to experience page',
+        '    skills, skl      - Go to skills page',
+        '    projects, pro    - Go to projects page',
+        '    education, edu   - Go to education page',
+        '    contact, con     - Go to contact page',
+        '',
+        '  Info:',
+        '    about            - About me',
+        '    whoami           - Show current user info',
+        '    linkedin         - Open LinkedIn profile',
+        '    location         - Show current location',
+        '',
+        '  Utility:',
+        '    help             - Show this help message',
+        '    clear            - Clear terminal',
+        '    date             - Show current date',
+        '',
+        '  Try Me:',
+        '    matrix           - ???',
+        '    hack             - ???'
+    ],
+    about: () => [
+        'Hi! I\'m Himanshu Chauhan',
+        'Support Escalation Engineer at Microsoft',
+        'I specialize in Enterprise Networks and Active Directory',
+        'Currently pursuing MSc in Data Science',
+        '',
+        'Type "experience" to see my work history',
+        'Type "skills" to see my technical expertise'
+    ],
+    whoami: async () => {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return [
+                'Visitor Information:',
+                `  IP Address: ${data.ip}`,
+                '  Status: Connected ✅'
+            ];
+        } catch (error) {
+            return [
+                'Visitor Information:',
+                '  IP Address: Unable to fetch',
+                '  Status: Connected ✅'
+            ];
+        }
+    },
+    location: () => [
+        '📍 Location: Bangalore, India',
+        'Timezone: IST (UTC+5:30)'
+    ],
+    date: () => {
+        const now = new Date();
+        return [now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), now.toLocaleTimeString()];
+    },
+    skills: () => {
+        window.location.href = 'skills.html';
+        return ['Navigating to skills...'];
+    },
+    skill: () => {
+        window.location.href = 'skills.html';
+        return ['Navigating to skills...'];
+    },
+    skl: () => {
+        window.location.href = 'skills.html';
+        return ['Navigating to skills...'];
+    },
+    contact: () => {
+        window.location.href = 'contact.html';
+        return ['Navigating to contact...'];
+    },
+    con: () => {
+        window.location.href = 'contact.html';
+        return ['Navigating to contact...'];
+    },
+    experience: () => {
+        window.location.href = 'experience.html';
+        return ['Navigating to experience...'];
+    },
+    exp: () => {
+        window.location.href = 'experience.html';
+        return ['Navigating to experience...'];
+    },
+    education: () => {
+        window.location.href = 'education.html';
+        return ['Navigating to education...'];
+    },
+    edu: () => {
+        window.location.href = 'education.html';
+        return ['Navigating to education...'];
+    },
+    projects: () => {
+        window.location.href = 'projects.html';
+        return ['Navigating to projects...'];
+    },
+    project: () => {
+        window.location.href = 'projects.html';
+        return ['Navigating to projects...'];
+    },
+    pro: () => {
+        window.location.href = 'projects.html';
+        return ['Navigating to projects...'];
+    },
+    clear: () => {
+        terminalOutput.innerHTML = `
+            <div class="terminal-line">Welcome to my digital workspace.</div>
+            <div class="terminal-line">Type 'help' to see available commands.</div>
+        `;
+        return [];
+    },
+    cls: () => {
+        terminalOutput.innerHTML = `
+            <div class="terminal-line">Welcome to my digital workspace.</div>
+            <div class="terminal-line">Type 'help' to see available commands.</div>
+        `;
+        return [];
+    },
+    linkedin: () => {
+        window.open('https://www.linkedin.com/in/himanshu4186/', '_blank');
+        return ['Opening LinkedIn profile...'];
+    },
+    matrix: async () => {
+        const lines = [
+            '> Initiating Matrix protocol...',
+            '',
+            '  ░█▀▄▀█ ─█▀▀█ ▀▀█▀▀ █▀▀█ ─▀─ █─█ ',
+            '  ░█░█░█ ░█▄▄█ ──█── █▄▄▀ ▀█▀ ▄▀▄ ',
+            '  ░█──░█ ░█─░█ ──█── █─░█ ▀▀▀ ▀─▀ ',
+            '',
+            '  Wake up, Neo...',
+            '  The Matrix has you...',
+            '  Follow the white rabbit.',
+            '',
+            '  Knock, knock.'
+        ];
+        
+        // Clear terminal first
+        terminalOutput.innerHTML = '';
+        
+        // Add lines with delay
+        for (let i = 0; i < lines.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.style.color = '#00FF41';
+            line.textContent = lines[i];
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+        
+        // Matrix rain effect
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789';
+        
+        for (let j = 0; j < 8; j++) {
+            await new Promise(resolve => setTimeout(resolve, 150));
+            let rainLine = '  ';
+            for (let k = 0; k < 40; k++) {
+                rainLine += chars[Math.floor(Math.random() * chars.length)];
+            }
+            const rain = document.createElement('div');
+            rain.className = 'terminal-line';
+            rain.style.color = '#00FF41';
+            rain.style.opacity = 1 - (j * 0.1);
+            rain.textContent = rainLine;
+            terminalOutput.appendChild(rain);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const end = document.createElement('div');
+        end.className = 'terminal-line';
+        end.style.color = '#00FF41';
+        end.textContent = '  > Connection terminated. Welcome back to reality.';
+        terminalOutput.appendChild(end);
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        
+        return [];
+    },
+    hack: async () => {
+        terminalOutput.innerHTML = '';
+        
+        const addHackLine = async (text, color = '#00FF41', delay = 100) => {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.style.color = color;
+            line.textContent = text;
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        };
+        
+        const progressBar = async (label, color = '#00FF41') => {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.style.color = color;
+            terminalOutput.appendChild(line);
+            
+            for (let i = 0; i <= 100; i += 5) {
+                const filled = '█'.repeat(Math.floor(i / 5));
+                const empty = '░'.repeat(20 - Math.floor(i / 5));
+                line.textContent = `  ${label} [${filled}${empty}] ${i}%`;
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        };
+        
+        await addHackLine('> INITIATING HACK SEQUENCE...', '#FF5F56', 200);
+        await addHackLine('', '#00FF41', 100);
+        await addHackLine('  ██╗  ██╗ █████╗  ██████╗██╗  ██╗', '#FF5F56', 50);
+        await addHackLine('  ██║  ██║██╔══██╗██╔════╝██║ ██╔╝', '#FF5F56', 50);
+        await addHackLine('  ███████║███████║██║     █████╔╝ ', '#FF5F56', 50);
+        await addHackLine('  ██╔══██║██╔══██║██║     ██╔═██╗ ', '#FF5F56', 50);
+        await addHackLine('  ██║  ██║██║  ██║╚██████╗██║  ██╗', '#FF5F56', 50);
+        await addHackLine('  ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝', '#FF5F56', 50);
+        await addHackLine('', '#00FF41', 200);
+        
+        await addHackLine('  [*] Scanning target: visitor_machine', '#FFBD2E', 150);
+        await addHackLine(`  [*] Target IP: ${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`, '#FFBD2E', 150);
+        await addHackLine('  [*] Detecting open ports...', '#FFBD2E', 200);
+        await addHackLine('  [+] Port 22 (SSH) - OPEN', '#00FF41', 100);
+        await addHackLine('  [+] Port 80 (HTTP) - OPEN', '#00FF41', 100);
+        await addHackLine('  [+] Port 443 (HTTPS) - OPEN', '#00FF41', 100);
+        await addHackLine('  [+] Port 8080 (PROXY) - OPEN', '#00FF41', 100);
+        await addHackLine('', '#00FF41', 100);
+        
+        await addHackLine('  [*] Bypassing firewall...', '#FFBD2E', 200);
+        await progressBar('FIREWALL BYPASS', '#FF5F56');
+        await addHackLine('  [✓] Firewall bypassed!', '#00FF41', 200);
+        await addHackLine('', '#00FF41', 100);
+        
+        await addHackLine('  [*] Injecting payload...', '#FFBD2E', 200);
+        await progressBar('PAYLOAD INJECTION', '#FFBD2E');
+        await addHackLine('  [✓] Payload injected!', '#00FF41', 200);
+        await addHackLine('', '#00FF41', 100);
+        
+        await addHackLine('  [*] Gaining root access...', '#FFBD2E', 200);
+        await progressBar('ROOT ACCESS', '#00FF41');
+        await addHackLine('', '#00FF41', 200);
+        
+        await addHackLine('  ╔══════════════════════════════════════╗', '#00FF41', 100);
+        await addHackLine('  ║     🎉 ACCESS GRANTED 🎉             ║', '#00FF41', 100);
+        await addHackLine('  ╚══════════════════════════════════════╝', '#00FF41', 100);
+        await addHackLine('', '#00FF41', 300);
+        
+        await addHackLine('  Just kidding! 😄', '#FFBD2E', 500);
+        await addHackLine('  This is just a fun animation.', '#FFBD2E', 200);
+        await addHackLine('  No systems were harmed in making this easter egg.', '#FFBD2E', 200);
+        await addHackLine('', '#00FF41', 100);
+        await addHackLine('  Pro tip: Real hacking is way more boring.', '#808080', 300);
+        await addHackLine('  It\'s mostly reading logs and drinking coffee. ☕', '#808080', 200);
+        
+        return [];
+    }
+};
+
+function addLine(text, className = '') {
+    const line = document.createElement('div');
+    line.className = `terminal-line ${className}`;
+    line.textContent = text;
+    terminalOutput.appendChild(line);
+}
+
+async function processCommand(input) {
+    const cmd = input.toLowerCase().trim();
+    
+    // Show the command entered
+    addLine(`> ${input}`, 'command-line');
+    
+    if (cmd === '') return;
+    
+    if (commands[cmd]) {
+        const response = await commands[cmd]();
+        response.forEach(line => addLine(line, 'response-line'));
+    } else {
+        addLine(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error-line');
+    }
+    
+    // Scroll to bottom
+    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+}
+
+if (terminalInput) {
+    terminalInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            processCommand(terminalInput.value);
+            terminalInput.value = '';
+        }
+    });
+    
+    // Focus terminal on click
+    document.querySelector('.typewriter-container')?.addEventListener('click', () => {
+        terminalInput.focus();
+    });
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    new PersonalWebsite();
+});
+
+// Export for potential module use
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = PersonalWebsite;
+}

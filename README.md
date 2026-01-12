@@ -1,2 +1,2 @@
-# himanshu-website
-This Repo holds files for my website showcasing my resume
+# himanshu-website-v2
+This is new website for hosting my CV online
