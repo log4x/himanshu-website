@@ -193,11 +193,16 @@ class PersonalWebsite {
         });
     }
     
-    executeCommand(command) {
+    executeCommand(command, showInTerminal = true) {
         if (!command) return;
         
         const cmd = command.toLowerCase().split(' ')[0];
         const args = command.split(' ').slice(1);
+        
+        // Show the command in terminal first (like when user types it manually)
+        if (showInTerminal && this.terminalOutput) {
+            this.showCommandInTerminal(command);
+        }
         
         if (this.terminalCommands[cmd]) {
             this.terminalCommands[cmd](args);
@@ -206,6 +211,33 @@ class PersonalWebsite {
         }
         
         this.closeCommandPalette();
+    }
+    
+    showCommandInTerminal(command) {
+        if (!this.terminalOutput) return;
+        
+        // Remove cursor from last line
+        const cursor = this.terminalOutput.querySelector('.cursor');
+        if (cursor && cursor.parentNode) {
+            cursor.parentNode.removeChild(cursor);
+        }
+        
+        // Add the command line showing what was executed
+        const commandLine = document.createElement('div');
+        commandLine.className = 'terminal-line command-line';
+        commandLine.textContent = `> ${command}`;
+        this.terminalOutput.appendChild(commandLine);
+        
+        // Animate the command line
+        if (typeof anime !== 'undefined') {
+            anime({
+                targets: commandLine,
+                opacity: [0, 1],
+                translateY: [10, 0],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
     }
     
     // Terminal commands
