@@ -487,11 +487,15 @@
             backdrop-filter: blur(10px);
             z-index: 999;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
         
         .mobile-nav-overlay.active {
             opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
         
         .mobile-nav-menu {
@@ -504,12 +508,16 @@
             flex-direction: column;
             gap: 16px;
             opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
             transition: all 0.3s ease;
         }
         
         .mobile-nav-menu.active {
             opacity: 1;
             transform: translate(-50%, -50%) scale(1);
+            visibility: visible;
+            pointer-events: auto;
         }
         
         .mobile-nav-item {
@@ -542,8 +550,8 @@
                 display: flex;
             }
             
-            .mobile-nav-overlay,
-            .mobile-nav-menu {
+            .mobile-nav-overlay.active,
+            .mobile-nav-menu.active {
                 display: flex;
             }
             

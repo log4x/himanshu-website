@@ -113,9 +113,6 @@ class PersonalWebsite {
             });
         });
         
-        // Navigation dock hide/show on scroll
-        this.setupScrollBehavior();
-        
         // Terminal interaction on index page
         if (this.terminalOutput) {
             document.addEventListener('keydown', (e) => {
@@ -435,36 +432,6 @@ class PersonalWebsite {
                 card.style.transitionDelay = `${index * 100}ms`;
             });
         });
-    }
-    
-    setupScrollBehavior() {
-        let lastScrollY = window.scrollY;
-        let ticking = false;
-        
-        const updateScrollDirection = () => {
-            if (window.scrollY > lastScrollY + 10) {
-                // Scrolling down
-                if (this.navDock) {
-                    this.navDock.classList.add('hidden');
-                }
-            } else if (window.scrollY < lastScrollY - 10) {
-                // Scrolling up
-                if (this.navDock) {
-                    this.navDock.classList.remove('hidden');
-                }
-            }
-            lastScrollY = window.scrollY;
-            ticking = false;
-        };
-        
-        const requestScrollUpdate = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateScrollDirection);
-                ticking = true;
-            }
-        };
-        
-        window.addEventListener('scroll', requestScrollUpdate);
     }
     
     createBackgroundAnimation() {
