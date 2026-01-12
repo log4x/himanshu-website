@@ -44,6 +44,41 @@ class PersonalWebsite {
         this.setupScrollAnimations();
         this.createBackgroundAnimation();
         this.setupCommandPalette();
+        this.setupMobileNavigation();
+    }
+    
+    setupMobileNavigation() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileNavOverlay = document.getElementById('mobileNavOverlay');
+        const mobileNavMenu = document.getElementById('mobileNavMenu');
+        
+        if (mobileMenuToggle && mobileNavOverlay && mobileNavMenu) {
+            // Toggle menu on button click
+            mobileMenuToggle.addEventListener('click', () => {
+                mobileMenuToggle.classList.toggle('active');
+                mobileNavOverlay.classList.toggle('active');
+                mobileNavMenu.classList.toggle('active');
+                document.body.style.overflow = mobileNavMenu.classList.contains('active') ? 'hidden' : '';
+            });
+            
+            // Close menu on overlay click
+            mobileNavOverlay.addEventListener('click', () => {
+                mobileMenuToggle.classList.remove('active');
+                mobileNavOverlay.classList.remove('active');
+                mobileNavMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            });
+            
+            // Close menu on Escape key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && mobileNavMenu.classList.contains('active')) {
+                    mobileMenuToggle.classList.remove('active');
+                    mobileNavOverlay.classList.remove('active');
+                    mobileNavMenu.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
     }
     
     setupEventListeners() {
