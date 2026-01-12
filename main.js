@@ -373,7 +373,7 @@ class PersonalWebsite {
         
         // Initial terminal content
         const initialContent = [
-            'Welcome to my digital workspace.',
+            'Welcome to the Terminal!',
             'Type \'help\' to see available commands.'
         ];
         
@@ -617,14 +617,14 @@ const commands = {
     },
     clear: () => {
         terminalOutput.innerHTML = `
-            <div class="terminal-line">Welcome to my digital workspace.</div>
+            <div class="terminal-line">Welcome to the Terminal!.</div>
             <div class="terminal-line">Type 'help' to see available commands.</div>
         `;
         return [];
     },
     cls: () => {
         terminalOutput.innerHTML = `
-            <div class="terminal-line">Welcome to my digital workspace.</div>
+            <div class="terminal-line">Welcome to the Terminal!.</div>
             <div class="terminal-line">Type 'help' to see available commands.</div>
         `;
         return [];
