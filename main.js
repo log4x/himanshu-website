@@ -98,14 +98,38 @@ class PersonalWebsite {
             
             // Handle input in expanded terminal
             if (this.expandedTerminalInput) {
+                // Handle Enter key
                 this.expandedTerminalInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        const command = this.expandedTerminalInput.value.trim();
-                        if (command) {
-                            this.executeExpandedTerminalCommand(command);
-                            this.expandedTerminalInput.value = '';
-                        }
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        this.submitExpandedTerminalCommand();
                     }
+                });
+                
+                // Also listen for keypress (some mobile keyboards use this)
+                this.expandedTerminalInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        e.preventDefault();
+                        this.submitExpandedTerminalCommand();
+                    }
+                });
+                
+                // Handle 'change' event for some mobile keyboards
+                this.expandedTerminalInput.addEventListener('change', () => {
+                    // Some mobile keyboards submit on 'change' when pressing Go/Done
+                    const command = this.expandedTerminalInput.value.trim();
+                    if (command && document.activeElement !== this.expandedTerminalInput) {
+                        this.submitExpandedTerminalCommand();
+                    }
+                });
+            }
+            
+            // Mobile send button
+            const sendBtn = document.getElementById('expandedTerminalSend');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', () => {
+                    this.submitExpandedTerminalCommand();
+                    this.expandedTerminalInput?.focus();
                 });
             }
             
@@ -187,6 +211,16 @@ class PersonalWebsite {
         if (this.terminalOutput && this.expandedTerminalOutput) {
             this.terminalOutput.innerHTML = this.expandedTerminalOutput.innerHTML;
             this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+        }
+    }
+    
+    submitExpandedTerminalCommand() {
+        if (!this.expandedTerminalInput) return;
+        
+        const command = this.expandedTerminalInput.value.trim();
+        if (command) {
+            this.executeExpandedTerminalCommand(command);
+            this.expandedTerminalInput.value = '';
         }
     }
     
