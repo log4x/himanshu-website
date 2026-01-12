@@ -814,48 +814,24 @@ if (terminalInput) {
     
     // Mobile keyboard handling - scroll to keep terminal visible
     terminalInput.addEventListener('focus', () => {
-        // Check if touch device (works regardless of viewport width)
         if (isTouchDevice()) {
-            // Small delay to let keyboard appear
             setTimeout(() => {
                 const terminalContainer = document.querySelector('.typewriter-container');
                 if (terminalContainer) {
+                    // Get terminal position and scroll to show it with some space above
                     const rect = terminalContainer.getBoundingClientRect();
-                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    const targetPosition = scrollTop + rect.top - 120; // 120px from top for breathing room
+                    const absoluteTop = rect.top + window.pageYOffset;
+                    // Scroll so terminal is about 50px from top of screen
+                    const targetScroll = absoluteTop - 50;
                     
                     window.scrollTo({
-                        top: Math.max(0, targetPosition),
+                        top: Math.max(0, targetScroll),
                         behavior: 'smooth'
                     });
                 }
-            }, 400);
+            }, 350);
         }
     });
-    
-    // Handle visual viewport resize (keyboard appearing/disappearing)
-    if (window.visualViewport) {
-        let initialHeight = window.visualViewport.height;
-        
-        window.visualViewport.addEventListener('resize', () => {
-            // Only scroll if keyboard appeared (viewport got smaller)
-            if (window.visualViewport.height < initialHeight * 0.8) {
-                if (document.activeElement === terminalInput && isTouchDevice()) {
-                    const terminalContainer = document.querySelector('.typewriter-container');
-                    if (terminalContainer) {
-                        const rect = terminalContainer.getBoundingClientRect();
-                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                        const targetPosition = scrollTop + rect.top - 120;
-                        
-                        window.scrollTo({
-                            top: Math.max(0, targetPosition),
-                            behavior: 'smooth'
-                        });
-                    }
-                }
-            }
-        });
-    }
 }
 
 // Initialize when DOM is loaded
