@@ -294,15 +294,53 @@ class PersonalWebsite {
     }
     
     showWhoami() {
-        const userInfo = [
-            'User: Himanshu Chauhan',
-            'Role: Support Escalation Engineer',
-            'Company: Microsoft',
-            'Specialization: Windows Networking, DNS, TCP/IP',
-            'Experience: 5+ years in enterprise networking',
-            'Certifications: AI-900, AI-102, AZ-900, CCNA (in progress)'
-        ];
-        this.addTerminalOutput(userInfo.join('\n'));
+        // Fetch visitor IP and show info (same as typed command)
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                this.addMultiLineOutput([
+                    'Visitor Information:',
+                    `  IP Address: ${data.ip}`,
+                    '  Status: Connected ✅'
+                ]);
+            })
+            .catch(() => {
+                this.addMultiLineOutput([
+                    'Visitor Information:',
+                    '  IP Address: Unable to fetch',
+                    '  Status: Connected ✅'
+                ]);
+            });
+    }
+    
+    addMultiLineOutput(lines) {
+        if (!this.terminalOutput) return;
+        
+        // Remove cursor from last line
+        const cursor = this.terminalOutput.querySelector('.cursor');
+        if (cursor && cursor.parentNode) {
+            cursor.parentNode.removeChild(cursor);
+        }
+        
+        // Add each line separately
+        lines.forEach(text => {
+            const line = document.createElement('div');
+            line.className = 'terminal-line response-line';
+            line.textContent = text;
+            this.terminalOutput.appendChild(line);
+        });
+        
+        // Add cursor to new line
+        const cursorElement = document.createElement('span');
+        cursorElement.className = 'cursor';
+        const cursorLine = document.createElement('div');
+        cursorLine.className = 'terminal-line';
+        cursorLine.textContent = '> ';
+        cursorLine.appendChild(cursorElement);
+        this.terminalOutput.appendChild(cursorLine);
+        
+        // Scroll to bottom
+        this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
     }
     
     showDate() {
