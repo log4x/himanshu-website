@@ -32,7 +32,9 @@ class PersonalWebsite {
             'whoami': this.showWhoami.bind(this),
             'about': this.showAbout.bind(this),
             'date': this.showDate.bind(this),
-            'uptime': this.showUptime.bind(this)
+            'uptime': this.showUptime.bind(this),
+            'matrix': this.runMatrix.bind(this),
+            'hack': this.runHack.bind(this)
         };
         
         this.init();
@@ -327,6 +329,20 @@ class PersonalWebsite {
         this.addTerminalOutput(`Uptime: ${days} days, ${hours} hours, ${minutes} minutes\nSystem Status: Operational ✅`);
     }
     
+    runMatrix() {
+        // Use the global commands.matrix function
+        if (typeof commands !== 'undefined' && commands.matrix) {
+            commands.matrix();
+        }
+    }
+    
+    runHack() {
+        // Use the global commands.hack function
+        if (typeof commands !== 'undefined' && commands.hack) {
+            commands.hack();
+        }
+    }
+
     showError(message) {
         this.addTerminalOutput(`Error: ${message}`, 'error');
     }
