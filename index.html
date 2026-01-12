@@ -259,12 +259,15 @@
             overflow: hidden;
             white-space: nowrap;
             border-right: 3px solid var(--neon-teal);
-            animation: typewriter 3s steps(40, end), blink-caret 0.75s step-end infinite;
+            animation: typewriter 3s steps(18, end) forwards, blink-caret 0.75s step-end infinite;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         @keyframes typewriter {
-            from { width: 0; }
-            to { width: 100%; }
+            from { max-width: 0; }
+            to { max-width: 100%; }
         }
         
         @keyframes blink-caret {
@@ -300,20 +303,21 @@
             display: flex;
             justify-content: center;
             gap: 12px;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
         
         .hero-bullet {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--light-grey);
-            padding: 8px 20px;
+            padding: 8px 16px;
             background: linear-gradient(135deg, rgba(0, 168, 150, 0.1), rgba(74, 111, 165, 0.1));
             border: 1px solid rgba(0, 168, 150, 0.3);
             border-radius: 25px;
             transition: all 0.3s ease;
+            white-space: nowrap;
         }
         
         .hero-bullet:hover {
@@ -796,8 +800,6 @@
                     <div class="hero-bullets-row">
                         <span class="hero-bullet">Part Network/AD Admin 🛜</span>
                         <span class="hero-bullet">Part Escalation Firefighter 🚒</span>
-                    </div>
-                    <div class="hero-bullets-row">
                         <span class="hero-bullet">Full-time Learner 📝</span>
                     </div>
                 </div>
