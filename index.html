@@ -282,10 +282,52 @@
         .hero-description {
             font-size: 1rem;
             color: var(--light-grey);
-            margin-bottom: 64px;
+            margin-bottom: 32px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+        }
+        
+        .hero-bullets {
+            list-style: none;
+            padding: 0;
+            margin: 0 auto 64px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .hero-bullets li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1rem;
+            color: var(--light-grey);
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(0, 168, 150, 0.1), rgba(74, 111, 165, 0.1));
+            border: 1px solid rgba(0, 168, 150, 0.3);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-bullets li:hover {
+            background: linear-gradient(135deg, rgba(0, 168, 150, 0.2), rgba(74, 111, 165, 0.2));
+            border-color: var(--neon-teal);
+            transform: translateX(5px);
+            box-shadow: 0 0 15px rgba(0, 168, 150, 0.2);
+        }
+        
+        .hero-bullets li::before {
+            content: '◆';
+            color: var(--neon-teal);
+            font-size: 0.7rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .typewriter-container {
@@ -743,9 +785,13 @@
                 </p>
                 
                 <p class="hero-description">
-                    I keep Enterprise Networks and Active Directory running, Admins sane, and Critical Issues under-control (Most Days 😄)<br>
-                    Part Network/AD Admin 🛜 Part Escalation Firefighter 🚒 <br> Full-time Learner 📝
+                    I keep Enterprise Networks and Active Directory running, Admins sane, and Critical Issues under-control (Most Days 😄)
                 </p>
+                <ul class="hero-bullets">
+                    <li>Part Network/AD Admin 🛜</li>
+                    <li>Part Escalation Firefighter 🚒</li>
+                    <li>Full-time Learner 📝</li>
+                </ul>
                 
                 <!-- Terminal Interface -->
                 <div class="typewriter-container">
