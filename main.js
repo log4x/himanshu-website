@@ -60,14 +60,22 @@ class PersonalWebsite {
     
     setupExpandedTerminal() {
         const typewriterContainer = document.querySelector('.typewriter-container');
+        const terminalOutputEl = document.getElementById('terminalOutput');
+        const terminalHeader = document.querySelector('.terminal-header');
         
         if (typewriterContainer && this.terminalOverlay) {
-            // Click on terminal to expand
-            typewriterContainer.addEventListener('click', (e) => {
-                // Don't expand if clicking on input field
-                if (e.target.id === 'terminalInput') return;
-                this.openExpandedTerminal();
-            });
+            // Click on terminal output or header to expand (not input area)
+            if (terminalOutputEl) {
+                terminalOutputEl.addEventListener('click', () => {
+                    this.openExpandedTerminal();
+                });
+            }
+            
+            if (terminalHeader) {
+                terminalHeader.addEventListener('click', () => {
+                    this.openExpandedTerminal();
+                });
+            }
             
             // Close buttons
             const closeBtn = document.getElementById('expandedTerminalCloseBtn');
@@ -1167,8 +1175,8 @@ if (terminalInput) {
         }
     });
     
-    // Focus terminal on click
-    document.querySelector('.typewriter-container')?.addEventListener('click', () => {
+    // Focus terminal input when clicking on input line area
+    document.querySelector('.terminal-input-line')?.addEventListener('click', () => {
         terminalInput.focus();
     });
     

@@ -915,30 +915,79 @@
 
         /* Click hint on terminal */
         .typewriter-container {
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
         }
 
         .typewriter-container:hover {
-            transform: translateY(-2px);
             box-shadow: 0 8px 30px rgba(0, 168, 150, 0.2);
             border-color: var(--neon-teal);
         }
 
-        .typewriter-container::after {
-            content: 'Click to expand';
+        /* Terminal output area - clickable to expand */
+        .terminal-output {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .terminal-output::after {
+            content: 'Click to expand ↗';
             position: absolute;
-            bottom: 8px;
-            right: 12px;
-            font-size: 10px;
+            top: 4px;
+            right: 8px;
+            font-size: 9px;
             color: var(--muted-grey);
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            background: var(--graphite);
+            padding: 2px 6px;
+            border-radius: 4px;
         }
 
-        .typewriter-container:hover::after {
+        .terminal-output:hover::after {
             opacity: 1;
+        }
+
+        /* Terminal header - also clickable */
+        .terminal-header {
+            cursor: pointer;
+        }
+
+        .terminal-header:hover {
+            background: rgba(0, 168, 150, 0.05);
+        }
+
+        /* Terminal input area styling */
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--steel-grey);
+            background: rgba(0, 0, 0, 0.2);
+            margin-left: -24px;
+            margin-right: -24px;
+            margin-bottom: -24px;
+            padding-left: 24px;
+            padding-right: 24px;
+            padding-bottom: 12px;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .terminal-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--pure-white);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            caret-color: var(--neon-teal);
+        }
+
+        .terminal-input::placeholder {
+            color: var(--muted-grey);
+            font-size: 12px;
         }
 
         /* Mobile optimizations for expanded terminal */
@@ -972,13 +1021,19 @@
                 font-size: 16px; /* Prevents zoom on iOS */
             }
 
-            .typewriter-container::after {
-                content: 'Tap to expand';
-                opacity: 0.7;
+            .terminal-output::after {
+                content: 'Tap to expand \u2197';\n                top: 2px;\n                right: 4px;\n                font-size: 8px;\n            }
+
+            .terminal-input-line {
+                margin-left: -16px;
+                margin-right: -16px;
+                margin-bottom: -16px;
+                padding-left: 16px;
+                padding-right: 16px;
             }
 
-            .typewriter-container:hover::after {
-                opacity: 0.7;
+            .terminal-input {
+                font-size: 16px; /* Prevents zoom on iOS */
             }
         }
     </style>
@@ -1122,7 +1177,7 @@
                     </div>
                     <div class="terminal-input-line">
                         <span class="terminal-prompt">&gt;&nbsp;</span>
-                        <input type="text" class="terminal-input" id="terminalInput" autocomplete="off" spellcheck="false">
+                        <input type="text" class="terminal-input" id="terminalInput" placeholder="Type a command..." autocomplete="off" spellcheck="false">
                     </div>
                 </div>
                 
