@@ -820,29 +820,38 @@ if (terminalInput) {
             setTimeout(() => {
                 const terminalContainer = document.querySelector('.typewriter-container');
                 if (terminalContainer) {
-                    terminalContainer.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
+                    const rect = terminalContainer.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const targetPosition = scrollTop + rect.top - 120; // 120px from top for breathing room
+                    
+                    window.scrollTo({
+                        top: Math.max(0, targetPosition),
+                        behavior: 'smooth'
                     });
-                    // Additional scroll to account for keyboard
-                    setTimeout(() => {
-                        window.scrollBy({ top: -100, behavior: 'smooth' });
-                    }, 100);
                 }
-            }, 300);
+            }, 400);
         }
     });
     
     // Handle visual viewport resize (keyboard appearing/disappearing)
     if (window.visualViewport) {
+        let initialHeight = window.visualViewport.height;
+        
         window.visualViewport.addEventListener('resize', () => {
-            if (document.activeElement === terminalInput && isTouchDevice()) {
-                const terminalContainer = document.querySelector('.typewriter-container');
-                if (terminalContainer) {
-                    terminalContainer.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                    });
+            // Only scroll if keyboard appeared (viewport got smaller)
+            if (window.visualViewport.height < initialHeight * 0.8) {
+                if (document.activeElement === terminalInput && isTouchDevice()) {
+                    const terminalContainer = document.querySelector('.typewriter-container');
+                    if (terminalContainer) {
+                        const rect = terminalContainer.getBoundingClientRect();
+                        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                        const targetPosition = scrollTop + rect.top - 120;
+                        
+                        window.scrollTo({
+                            top: Math.max(0, targetPosition),
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             }
         });
