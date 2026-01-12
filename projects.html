@@ -662,6 +662,27 @@
                 padding: 16px 24px;
             }
             
+            .filter-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+                width: 100%;
+                max-width: 320px;
+                margin: 0 auto;
+            }
+            
+            .filter-btn {
+                padding: 10px 16px;
+                font-size: 0.8rem;
+                text-align: center;
+            }
+            
+            .filter-btn:first-child {
+                grid-column: span 2;
+                max-width: 160px;
+                margin: 0 auto;
+            }
+            
             .projects-section {
                 padding: 24px;
             }
