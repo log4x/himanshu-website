@@ -280,6 +280,9 @@
             cursor: pointer;
             opacity: 0;
             transform: translateY(30px);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
         
         .project-card.animated {
@@ -288,7 +291,7 @@
         }
         
         .project-card:hover {
-            transform: translateY(-8px) rotateX(5deg);
+            transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 168, 150, 0.2);
         }
         
@@ -341,6 +344,7 @@
             color: var(--light-grey);
             margin-bottom: 24px;
             line-height: 1.6;
+            flex-grow: 1;
         }
         
         .project-tech {
@@ -361,9 +365,10 @@
         
         .project-metrics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
             margin-bottom: 24px;
+            margin-top: auto;
         }
         
         .metric {
@@ -662,7 +667,7 @@
             }
             
             .project-metrics {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
             }
         }
         
